@@ -134,7 +134,7 @@
 		for (id dir in [self.syncthing getFolders]) {
 			NSLog(@"id: %@", [dir objectForKey:@"id"]);
 			NSMenuItem *item = [[NSMenuItem alloc] init];
-			[item setTitle:[dir objectForKey:@"id"]];
+			[item setTitle:[dir objectForKey:@"label"]];
 			[item setRepresentedObject:[dir objectForKey:@"path"]];
 			[item setAction:@selector(clickedFolder:)];
 			[item setToolTip:[dir objectForKey:@"path"]];
