@@ -1,4 +1,5 @@
 #import "STApplication.h"
+#import "STWindowController.h"
 
 @interface STAppDelegate ()
 
@@ -7,6 +8,7 @@
 @property (nonatomic, strong, readwrite) XGSyncthing *syncthing;
 @property (strong) STPreferencesWindowController *preferencesWindow;
 @property (strong) STAboutWindowController *aboutWindow;
+@property (strong) STWindowController *syncthingWindow;
 
 @end
 
@@ -98,8 +100,31 @@
 
 - (IBAction)clickedOpen:(id)sender
 {
-    NSURL *URL = [NSURL URLWithString:[self.syncthing URI]];
-    [[NSWorkspace sharedWorkspace] openURL:URL];
+    //TODO: Add a configuration option to choose how to launch the GUI.
+//    NSURL *URL = [NSURL URLWithString:[self.syncthing URI]];
+//    [[NSWorkspace sharedWorkspace] openURL:URL];
+
+    if (!self.syncthingWindow) {
+        self.syncthingWindow  = [[STWindowController alloc] init];
+        [self.syncthingWindow.window makeKeyAndOrderFront:nil];
+        [self.syncthingWindow showWindow:nil];
+    } else {
+        [self.syncthingWindow.window makeKeyAndOrderFront:nil];
+    }
+    [NSApp activateIgnoringOtherApps:YES];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(syncthingWindowWillClose:)
+                                                 name:NSWindowWillCloseNotification
+                                               object:[self.syncthingWindow window]];
+
+
+}
+
+- (void)syncthingWindowWillClose:(NSNotification *)notification {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:NSWindowWillCloseNotification
+                                                  object:[self.syncthingWindow window]];
+    self.syncthingWindow = nil;
 }
 
 -(void)menuWillOpen:(NSMenu *)menu{

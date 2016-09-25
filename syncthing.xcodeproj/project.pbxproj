@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A85029A61D96A90B00C56342 /* STWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A85029A41D96A90B00C56342 /* STWindowController.m */; };
+		A85029A71D96A90B00C56342 /* STWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A85029A51D96A90B00C56342 /* STWindowController.xib */; };
+		A85029A91D97052C00C56342 /* debug.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = A85029A81D97052C00C56342 /* debug.entitlements */; };
+		A85029AB1D9744F000C56342 /* STExtension.js in Resources */ = {isa = PBXBuildFile; fileRef = A85029AA1D9744F000C56342 /* STExtension.js */; };
 		C41E02A21D57D233006DD238 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C41E02A11D57D233006DD238 /* Sparkle.framework */; };
 		C41E02A31D57D28C006DD238 /* Sparkle.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = C41E02A11D57D233006DD238 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C4460A801D0DD2D500200C21 /* STPreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = C4460A7D1D0DD2D500200C21 /* STPreferencesWindowController.m */; };
@@ -51,6 +55,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A85029A31D96A90B00C56342 /* STWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STWindowController.h; sourceTree = "<group>"; };
+		A85029A41D96A90B00C56342 /* STWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STWindowController.m; sourceTree = "<group>"; };
+		A85029A51D96A90B00C56342 /* STWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = STWindowController.xib; sourceTree = "<group>"; };
+		A85029A81D97052C00C56342 /* debug.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = debug.entitlements; sourceTree = "<group>"; };
+		A85029AA1D9744F000C56342 /* STExtension.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = STExtension.js; sourceTree = "<group>"; };
 		C41E02A11D57D233006DD238 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = 3thparty/frameworks/Sparkle.framework; sourceTree = SOURCE_ROOT; };
 		C44262761D0DEF9F005340C2 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C4460A7C1D0DD2D500200C21 /* STPreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPreferencesWindowController.h; path = Controllers/STPreferencesWindowController.h; sourceTree = "<group>"; };
@@ -143,6 +152,7 @@
 		C4A415571D0D579D00DC6018 = {
 			isa = PBXGroup;
 			children = (
+				A85029A81D97052C00C56342 /* debug.entitlements */,
 				C46261361D578DA800B16BC6 /* Frameworks */,
 				C4576BE71D11E7C00031BCFD /* libobjc.tbd */,
 				C4D896141D0DF90E00D42F73 /* Scripts */,
@@ -175,6 +185,10 @@
 				C4A415691D0D579D00DC6018 /* Assets.xcassets */,
 				C4A4156E1D0D579D00DC6018 /* Info.plist */,
 				C4A415661D0D579D00DC6018 /* Supporting Files */,
+				A85029A31D96A90B00C56342 /* STWindowController.h */,
+				A85029A41D96A90B00C56342 /* STWindowController.m */,
+				A85029A51D96A90B00C56342 /* STWindowController.xib */,
+				A85029AA1D9744F000C56342 /* STExtension.js */,
 			);
 			name = Sources;
 			path = syncthing;
@@ -259,7 +273,8 @@
 				C4A4155D1D0D579D00DC6018 /* Frameworks */,
 				C4A4155E1D0D579D00DC6018 /* Resources */,
 				C462613D1D57944400B16BC6 /* Copy Files */,
-				C4946AFF1D5876AF008447A2 /* ShellScript */,
+				C4946AFF1D5876AF008447A2 /* Run Script Gather Resources */,
+				A850299C1D93361000C56342 /* Create DMG */,
 			);
 			buildRules = (
 			);
@@ -281,10 +296,13 @@
 				TargetAttributes = {
 					C4576BDA1D11E3BB0031BCFD = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = FF57TCB994;
 					};
 					C4A4155F1D0D579D00DC6018 = {
 						CreatedOnToolsVersion = 7.3.1;
-						DevelopmentTeam = C24U83K674;
+						DevelopmentTeam = FF57TCB994;
+						LastSwiftMigration = 0800;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -316,20 +334,39 @@
 				C4A4156A1D0D579D00DC6018 /* Assets.xcassets in Resources */,
 				C4A4156D1D0D579D00DC6018 /* STApplication.xib in Resources */,
 				C4460A831D0DD38F00200C21 /* STPreferencesWindow.xib in Resources */,
+				A85029A71D96A90B00C56342 /* STWindowController.xib in Resources */,
+				A85029AB1D9744F000C56342 /* STExtension.js in Resources */,
 				C4946B011D5877F2008447A2 /* STAboutWindow.xib in Resources */,
+				A85029A91D97052C00C56342 /* debug.entitlements in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		C4946AFF1D5876AF008447A2 /* ShellScript */ = {
+		A850299C1D93361000C56342 /* Create DMG */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Create DMG";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ ${CONFIGURATION} == \"Release\" ]; then\n${PROJECT_DIR}/syncthing/Scripts/create-dmg.sh\nfi";
+			showEnvVarsInLog = 0;
+		};
+		C4946AFF1D5876AF008447A2 /* Run Script Gather Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script Gather Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -360,6 +397,7 @@
 				C4460A811D0DD2D500200C21 /* STStatusBarController.m in Sources */,
 				C4460A801D0DD2D500200C21 /* STPreferencesWindowController.m in Sources */,
 				C4A415651D0D579D00DC6018 /* STApplication.m in Sources */,
+				A85029A61D96A90B00C56342 /* STWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,6 +419,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = FF57TCB994;
 				GCC_DYNAMIC_NO_PIC = NO;
 				OTHER_CFLAGS = "";
 				"OTHER_LDFLAGS[arch=*]" = "";
@@ -392,6 +431,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = FF57TCB994;
 				OTHER_CFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -488,10 +528,12 @@
 		C4A415721D0D579D00DC6018 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = debug.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = "";
+				DEVELOPMENT_TEAM = FF57TCB994;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -511,10 +553,12 @@
 		C4A415731D0D579D00DC6018 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Developer ID Application";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer: jerryjacobs1989@gmail.com (TT7GM4W59N)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = "";
+				DEVELOPMENT_TEAM = FF57TCB994;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
