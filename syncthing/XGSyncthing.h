@@ -3,7 +3,7 @@
  */
 #import <Foundation/Foundation.h>
 
-@interface XGSyncthing : NSObject {}
+@interface XGSyncthing : NSObject<NSURLSessionDelegate> {}
 
 @property (nonatomic, copy) NSString *Executable;
 @property (nonatomic, copy) NSString *URI;
@@ -19,9 +19,8 @@
 - (void)stopExecutable;
 
 
-- (bool)ping;
-- (id)getUptime;
-
-- (id)getFolders;
+- (void)ping:(void (^)(BOOL flag))completionBlock;
+- (void)getUptime:(void (^)(long uptime))completionBlock;
+- (void)getFolders:(void (^)(id folders))completionBlock;
 
 @end

@@ -8,13 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "XGSyncthing.h"
-#import "Controllers/STAboutWindowController.h"
-#import "Controllers/STPreferencesWindowController.h"
 
 @interface STAppDelegate : NSObject <NSApplicationDelegate>
 
 @property (weak) IBOutlet NSMenu *Menu;
 @property (nonatomic, readonly) NSStatusItem *statusItem;
+
+-(void) useInotify:(BOOL) flag;
+-(void) showInotifyLog;
 
 @end

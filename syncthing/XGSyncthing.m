@@ -3,6 +3,7 @@
 @interface XGSyncthing()
 
 @property NSTask *_StTask;
+@property NSURLSession* syncthingSession;
 
 @end
 
@@ -12,11 +13,23 @@
 @synthesize URI = _URI;
 @synthesize ApiKey = _apiKey;
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.syncthingSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
+                                                              delegate:self
+                                                         delegateQueue:nil];
+    }
+    return self;
+}
 - (bool)runExecutable
 {
     self._StTask = [[NSTask alloc] init];
     [self._StTask setLaunchPath:_Executable];
+    [self._StTask setArguments:@[@"-no-browser"]];
     [self._StTask launch];
+
     return true;
 }
 
@@ -29,79 +42,95 @@
     [self._StTask waitUntilExit];
 }
 
-- (bool)ping
+- (void)ping:(void (^)(BOOL flag))completionBlock
 {
-	NSData *serverData = nil;
-	NSError *myError = nil;
-	NSURLResponse *serverResponse = nil;
+//	NSURLResponse *serverResponse = nil;
 	NSMutableURLRequest *theRequest=[NSMutableURLRequest
 	 requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@%@", _URI, @"/rest/system/ping"]]
 	 cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0];
-    
+
 	[theRequest setHTTPMethod:@"GET"];
 	[theRequest setValue:_apiKey forHTTPHeaderField:@"X-API-Key"];
-    
-	serverData = [NSURLConnection sendSynchronousRequest:theRequest
-                                       returningResponse:&serverResponse error:&myError];
 
-    if (myError)
-        return false;
-    
-	id json = [NSJSONSerialization JSONObjectWithData:serverData options:
-		NSJSONReadingMutableContainers error:&myError];
+    NSURLSessionDataTask* dataTask = [self.syncthingSession dataTaskWithRequest:theRequest completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+          NSError *myError = nil;
+          BOOL result = false;
 
-	if ([[json objectForKey:@"ping"] isEqualToString:@"pong"])
-		return true;
-	return false;
+          if (!error) {
+
+          id json = [NSJSONSerialization JSONObjectWithData:data options:
+                     NSJSONReadingMutableContainers error:&myError];
+
+          if ([[json objectForKey:@"ping"] isEqualToString:@"pong"])
+              result = true;
+
+          }
+          completionBlock(result);
+
+    }];
+    [dataTask resume];
 }
 
-- (id)getUptime
+- (void)getUptime:(void (^)(long uptime))completionBlock
 {
-    NSData *serverData = nil;
-    NSError *myError = nil;
-    NSURLResponse *serverResponse = nil;
     NSMutableURLRequest *theRequest=[NSMutableURLRequest
                                      requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@%@", _URI, @"/rest/system/status"]]
                                      cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0];
     
     [theRequest setHTTPMethod:@"GET"];
     [theRequest setValue:_apiKey forHTTPHeaderField:@"X-API-Key"];
-    
-    serverData = [NSURLConnection sendSynchronousRequest:theRequest
-                                       returningResponse:&serverResponse error:&myError];
-    
-    if (myError)
-        return false;
-    
-    id json = [NSJSONSerialization JSONObjectWithData:serverData options:
-               NSJSONReadingMutableContainers error:&myError];
-    
-    return [json objectForKey:@"uptime"];
+
+    NSURLSessionDataTask* dataTask = [self.syncthingSession dataTaskWithRequest:theRequest completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+
+        NSError *myError = nil;
+        if (!error) {
+
+            id json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&myError];
+            completionBlock( [[json objectForKey:@"uptime"] longValue]);
+            return;
+        }
+        completionBlock(0);
+    }];
+    [dataTask resume];
 }
 
-- (id)getFolders
+- (void)getFolders:(void (^)(id folders))completionBlock
 {
-    NSData *serverData = nil;
-    NSError *myError = nil;
-    NSURLResponse *serverResponse = nil;
+//    NSData *serverData = nil;
+//    NSURLResponse *serverResponse = nil;
     NSMutableURLRequest *theRequest=[NSMutableURLRequest
                                      requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@%@", _URI, @"/rest/system/config"]]
                                      cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0];
     
     [theRequest setHTTPMethod:@"GET"];
     [theRequest setValue:_apiKey forHTTPHeaderField:@"X-API-Key"];
-    
-    serverData = [NSURLConnection sendSynchronousRequest:theRequest
-                                       returningResponse:&serverResponse error:&myError];
-    
-    if (myError)
-        return nil;
-    
-    id json = [NSJSONSerialization JSONObjectWithData:serverData options:
-               NSJSONReadingMutableContainers error:&myError];
-    
-    return [json objectForKey:@"folders"];
+    NSURLSessionDataTask* dataTask = [self.syncthingSession dataTaskWithRequest:theRequest completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        NSError *myError = nil;
+
+        if (!error) {
+            id json = [NSJSONSerialization JSONObjectWithData:data options:
+                       NSJSONReadingMutableContainers error:&myError];
+            completionBlock ([json objectForKey:@"folders"]);
+        } else {
+            completionBlock(nil);
+        }
+    }];
+    [dataTask resume];
 }
 
+- (void) URLSession:(NSURLSession *)session
+didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
+  completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler {
 
+    // Accept selfsign certificates
+    if (challenge.protectionSpace.serverTrust) {
+        NSURLCredential* cred = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
+        completionHandler(NSURLSessionAuthChallengeUseCredential,cred);
+    }
+
+}
+
+-(void)dealloc {
+    NSLog(@"XGSyncthing got dealloc: %@",self);
+}
 @end

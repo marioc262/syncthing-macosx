@@ -1,11 +1,17 @@
 #import "STApplication.h"
 #import "STWindowController.h"
+#import "XGSyncthing.h"
+#import "XGXGSyncthingInotify.h"
+#import "Controllers/STAboutWindowController.h"
+#import "Controllers/STPreferencesWindowController.h"
 
 @interface STAppDelegate ()
 
 @property (nonatomic, strong, readwrite) NSStatusItem *statusItem;
 @property (nonatomic, strong, readwrite) NSTimer *updateTimer;
 @property (nonatomic, strong, readwrite) XGSyncthing *syncthing;
+@property (nonatomic, strong, readwrite) XGXGSyncthingInotify *syncthingInotify;
+
 @property (strong) STPreferencesWindowController *preferencesWindow;
 @property (strong) STAboutWindowController *aboutWindow;
 @property (strong) STWindowController *syncthingWindow;
@@ -15,10 +21,14 @@
 @implementation STAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    self.syncthing = [[XGSyncthing alloc] init];
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     
+    self.syncthing = [[XGSyncthing alloc] init];
+    self.syncthingInotify = [[XGXGSyncthingInotify alloc] init];
+
     [self applicationLoadConfiguration];
     [self.syncthing runExecutable];
+    [self useInotify:[defaults boolForKey:@"UseInotify"]];
     
     self.updateTimer = [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(updateStatusFromTimer) userInfo:nil repeats:YES];
 }
@@ -50,7 +60,11 @@
         [self.syncthing setExecutable:[NSString stringWithFormat:@"%@/%@",
                                        [[NSBundle mainBundle] resourcePath],
                                        @"syncthing/syncthing"]];
+        [self.syncthingInotify setExecutable:[NSString stringWithFormat:@"%@/%@",
+                                              [[NSBundle mainBundle] resourcePath],
+                                              @"syncthing-inotify/syncthing-inotify"]];
     }
+
 
     NSString *cfgURI         = [defaults stringForKey:@"URI"];
     if (cfgURI) {
@@ -83,19 +97,43 @@
 	[self.statusItem.button.image setTemplate:YES];
 }
 
+- (NSString *) formatInterval: (NSTimeInterval) interval
+{
+    unsigned long seconds = interval;
+    unsigned long minutes = seconds / 60;
+    seconds %= 60;
+    unsigned long hours = minutes / 60;
+    minutes %= 60;
+
+    NSMutableString * result = [NSMutableString new];
+
+    if(hours)
+        [result appendFormat: @"%ld:", hours];
+
+    [result appendFormat: @"%02ld:", minutes];
+    [result appendFormat: @"%02ld", seconds];
+    
+    return result;
+}
+
 - (void)updateStatusFromTimer
 {
-    if ([self.syncthing ping]) {
-        [self updateStatusIcon:@"StatusIconDefault"];
-        [self.statusItem setToolTip:[
-                                     NSString stringWithFormat:@"Syncthing - Connected\n%@\nUptime %@",
-                                     [self.syncthing URI],
-                                     [self.syncthing getUptime]
-                                     ]];
-    } else {
-        [self updateStatusIcon:@"StatusIconNotify"];
-        [self.statusItem setToolTip:@"Syncthing - Not connected"];
-    }
+    __weak STAppDelegate* weakself = self;
+    [self.syncthing ping:^(BOOL flag) {
+        if (flag) {
+            [weakself updateStatusIcon:@"StatusIconDefault"];
+            [weakself.syncthing getUptime:^(long uptime) {
+                [weakself.statusItem setToolTip:[
+                                             NSString stringWithFormat:@"Syncthing - Connected\n%@\nUptime %@",
+                                             [weakself.syncthing URI],
+                                             [weakself formatInterval:uptime]
+                                             ]];
+            }];
+        } else {
+            [weakself updateStatusIcon:@"StatusIconNotify"];
+            [weakself.statusItem setToolTip:@"Syncthing - Not connected"];
+        }
+    }];
 }
 
 - (IBAction)clickedOpen:(id)sender
@@ -128,18 +166,24 @@
 }
 
 -(void)menuWillOpen:(NSMenu *)menu{
+    __block NSMenu* folderMenu = menu;
+    folderMenu.menuChangedMessagesEnabled = YES;
 	if([[menu title] isEqualToString:@"Folders"]){
-		[menu removeAllItems];
-		
-		for (id dir in [self.syncthing getFolders]) {
-			NSLog(@"id: %@", [dir objectForKey:@"id"]);
-			NSMenuItem *item = [[NSMenuItem alloc] init];
-			[item setTitle:[dir objectForKey:@"label"]];
-			[item setRepresentedObject:[dir objectForKey:@"path"]];
-			[item setAction:@selector(clickedFolder:)];
-			[item setToolTip:[dir objectForKey:@"path"]];
-			[menu addItem:item];
-		}
+		[self.syncthing getFolders:^(id folders) {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                [folderMenu removeAllItems];
+                for (id dir in folders) {
+                    NSLog(@"id: %@", [dir objectForKey:@"id"]);
+                    NSMenuItem *item = [[NSMenuItem alloc] init];
+                    [item setTitle:[dir objectForKey:@"label"]];
+                    [item setRepresentedObject:[dir objectForKey:@"path"]];
+                    [item setAction:@selector(clickedFolder:)];
+                    [item setToolTip:[dir objectForKey:@"path"]];
+                    [folderMenu addItem:item];
+                    [folderMenu update];
+                }
+            });
+        }];
 	}
 }
 
@@ -155,13 +199,16 @@
     self.statusItem.menu = nil;
     
     [self.syncthing stopExecutable];
+    [self.syncthingInotify stopExecutable];
     [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:1.0];
 }
 
 - (IBAction)clickedPreferences:(NSMenuItem *)sender
 {
     self.preferencesWindow = [[STPreferencesWindowController alloc] init];
+    self.preferencesWindow.application = self;
     [self.preferencesWindow.window setLevel:NSFloatingWindowLevel];
+    
     [NSApp activateIgnoringOtherApps:YES];
     [self.preferencesWindow showWindow:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -187,6 +234,23 @@
                                                     name:NSWindowWillCloseNotification
                                                   object:[self.preferencesWindow window]];
     self.preferencesWindow = nil;
+}
+
+#pragma mark - iNotify support
+
+-(void) useInotify:(BOOL) flag {
+    if (!flag && self.syncthingInotify.isRunning) {
+        //Need to stop it
+        [self.syncthingInotify stopExecutable];
+    } else if (flag && !self.syncthingInotify.isRunning) {
+        //Need to start it
+        [self.syncthingInotify runExecutable];
+    }
+    // else there is nothing to do.
+}
+
+-(void) showInotifyLog {
+    [[NSWorkspace sharedWorkspace] openFile:self.syncthingInotify.logPath];
 }
 
 @end

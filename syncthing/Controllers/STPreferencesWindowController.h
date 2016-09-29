@@ -8,10 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface STPreferencesWindowController : NSWindowController
+@class STAppDelegate;
+
+@interface STPreferencesWindowController : NSWindowController<NSXMLParserDelegate>
 
 @property (weak) IBOutlet NSTextField *Syncthing_URI;
 @property (weak) IBOutlet NSTextField *Syncthing_ApiKey;
 @property (weak) IBOutlet NSButton *StartAtLogin;
+@property (weak) IBOutlet NSButton *UseSynthing_inotify;
+@property (weak) STAppDelegate *application;
 
 @end

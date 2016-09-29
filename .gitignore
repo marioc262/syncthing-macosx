@@ -2,3 +2,6 @@ build
 .DS_Store
 *.xcodeproj/xcuserdata
 *.xcodeproj/project.xcworkspace
+.stfolder
+*.sync-conflict-*.*
+ModuleCache

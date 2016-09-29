@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A84B580B1D9AE59F001AD2C6 /* syncthing-inotify-resource.sh in Resources */ = {isa = PBXBuildFile; fileRef = A84B580A1D9AE59F001AD2C6 /* syncthing-inotify-resource.sh */; };
 		A85029A61D96A90B00C56342 /* STWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A85029A41D96A90B00C56342 /* STWindowController.m */; };
 		A85029A71D96A90B00C56342 /* STWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A85029A51D96A90B00C56342 /* STWindowController.xib */; };
 		A85029A91D97052C00C56342 /* debug.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = A85029A81D97052C00C56342 /* debug.entitlements */; };
 		A85029AB1D9744F000C56342 /* STExtension.js in Resources */ = {isa = PBXBuildFile; fileRef = A85029AA1D9744F000C56342 /* STExtension.js */; };
+		A861D48E1D9B5258000442BC /* XGXGSyncthingInotify.m in Sources */ = {isa = PBXBuildFile; fileRef = A861D48D1D9B5258000442BC /* XGXGSyncthingInotify.m */; };
 		C41E02A21D57D233006DD238 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C41E02A11D57D233006DD238 /* Sparkle.framework */; };
 		C41E02A31D57D28C006DD238 /* Sparkle.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = C41E02A11D57D233006DD238 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C4460A801D0DD2D500200C21 /* STPreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = C4460A7D1D0DD2D500200C21 /* STPreferencesWindowController.m */; };
@@ -55,11 +57,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A84B580A1D9AE59F001AD2C6 /* syncthing-inotify-resource.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = "syncthing-inotify-resource.sh"; path = "syncthing/Scripts/syncthing-inotify-resource.sh"; sourceTree = "<group>"; };
 		A85029A31D96A90B00C56342 /* STWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STWindowController.h; sourceTree = "<group>"; };
 		A85029A41D96A90B00C56342 /* STWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STWindowController.m; sourceTree = "<group>"; };
 		A85029A51D96A90B00C56342 /* STWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = STWindowController.xib; sourceTree = "<group>"; };
 		A85029A81D97052C00C56342 /* debug.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = debug.entitlements; sourceTree = "<group>"; };
 		A85029AA1D9744F000C56342 /* STExtension.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = STExtension.js; sourceTree = "<group>"; };
+		A861D48C1D9B5258000442BC /* XGXGSyncthingInotify.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XGXGSyncthingInotify.h; sourceTree = "<group>"; };
+		A861D48D1D9B5258000442BC /* XGXGSyncthingInotify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XGXGSyncthingInotify.m; sourceTree = "<group>"; };
 		C41E02A11D57D233006DD238 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = 3thparty/frameworks/Sparkle.framework; sourceTree = SOURCE_ROOT; };
 		C44262761D0DEF9F005340C2 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C4460A7C1D0DD2D500200C21 /* STPreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPreferencesWindowController.h; path = Controllers/STPreferencesWindowController.h; sourceTree = "<group>"; };
@@ -231,6 +236,7 @@
 			children = (
 				C4576BD51D11E3210031BCFD /* create-dmg.sh */,
 				C4D896121D0DF90900D42F73 /* syncthing-resource.sh */,
+				A84B580A1D9AE59F001AD2C6 /* syncthing-inotify-resource.sh */,
 			);
 			name = Scripts;
 			sourceTree = "<group>";
@@ -241,6 +247,8 @@
 				C4576BE21D11E40E0031BCFD /* Test */,
 				C4FFB0641D0D7E4C0015D14A /* XGSyncthing.m */,
 				C4FFB0631D0D7E440015D14A /* XGSyncthing.h */,
+				A861D48C1D9B5258000442BC /* XGXGSyncthingInotify.h */,
+				A861D48D1D9B5258000442BC /* XGXGSyncthingInotify.m */,
 			);
 			name = Library;
 			sourceTree = "<group>";
@@ -300,7 +308,7 @@
 					};
 					C4A4155F1D0D579D00DC6018 = {
 						CreatedOnToolsVersion = 7.3.1;
-						DevelopmentTeam = FF57TCB994;
+						DevelopmentTeam = 4BNG34B4RZ;
 						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 					};
@@ -338,6 +346,7 @@
 				A85029AB1D9744F000C56342 /* STExtension.js in Resources */,
 				C4946B011D5877F2008447A2 /* STAboutWindow.xib in Resources */,
 				A85029A91D97052C00C56342 /* debug.entitlements in Resources */,
+				A84B580B1D9AE59F001AD2C6 /* syncthing-inotify-resource.sh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -397,6 +406,7 @@
 				C4460A811D0DD2D500200C21 /* STStatusBarController.m in Sources */,
 				C4460A801D0DD2D500200C21 /* STPreferencesWindowController.m in Sources */,
 				C4A415651D0D579D00DC6018 /* STApplication.m in Sources */,
+				A861D48E1D9B5258000442BC /* XGXGSyncthingInotify.m in Sources */,
 				A85029A61D96A90B00C56342 /* STWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -533,7 +543,7 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = "";
-				DEVELOPMENT_TEAM = FF57TCB994;
+				DEVELOPMENT_TEAM = 4BNG34B4RZ;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -541,7 +551,7 @@
 				);
 				INFOPLIST_FILE = syncthing/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.github.xor-gate.syncthing-macosx";
 				PRODUCT_NAME = Syncthing;
 				PROVISIONING_PROFILE = "";
@@ -558,7 +568,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = "";
-				DEVELOPMENT_TEAM = FF57TCB994;
+				DEVELOPMENT_TEAM = 4BNG34B4RZ;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -566,7 +576,7 @@
 				);
 				INFOPLIST_FILE = syncthing/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.github.xor-gate.syncthing-macosx";
 				PRODUCT_NAME = Syncthing;
 				PROVISIONING_PROFILE = "";

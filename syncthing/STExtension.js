@@ -12,6 +12,7 @@ function setFolderPath(folderPath, folderLabel) {
         $("#folderLabel").val(folderLabel);
     }
     $("#folderPath").val(folderPath);
+    $('#folderPath').change();
 }
 
 
