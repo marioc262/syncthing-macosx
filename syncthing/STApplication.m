@@ -86,13 +86,15 @@
 }
 
 - (void) updateStatusFromTimer {
-    if ([_syncthing ping]) {
+    [_syncthing ping:^(BOOL flag) {
+    if (flag) {
         [self updateStatusIcon:@"StatusIconDefault"];
         [_statusItem setToolTip:@"Connected"];
     } else {
         [self updateStatusIcon:@"StatusIconNotify"];
         [_statusItem setToolTip:@"Not connected"];
     }
+    }];
 }
 
 - (IBAction) clickedOpen:(id)sender {
@@ -101,22 +103,26 @@
 }
 
 - (void) updateFoldersMenu:(NSMenu *)menu {
-    [menu removeAllItems];
-    
-    for (id dir in [self.syncthing getFolders]) {
-        NSString *name = [dir objectForKey:@"label"];
-        if ([name length] == 0)
-            name = [dir objectForKey:@"id"];
-        
-        NSMenuItem *item = [[NSMenuItem alloc] init];
-        
-        [item setTitle:name];
-        [item setRepresentedObject:[dir objectForKey:@"path"]];
-        [item setAction:@selector(clickedFolder:)];
-        [item setToolTip:[dir objectForKey:@"path"]];
-        
-        [menu addItem:item];
-    }
+    [self.syncthing getFolders:^(id folders) {
+        //TODO: This need to execute on the main thread.
+            dispatch_sync(dispatch_get_main_queue(), ^{
+            [menu removeAllItems];
+            for (id dir in folders) {
+                NSString *name = [dir objectForKey:@"label"];
+                if ([name length] == 0)
+                    name = [dir objectForKey:@"id"];
+                
+                NSMenuItem *item = [[NSMenuItem alloc] init];
+                
+                [item setTitle:name];
+                [item setRepresentedObject:[dir objectForKey:@"path"]];
+                [item setAction:@selector(clickedFolder:)];
+                [item setToolTip:[dir objectForKey:@"path"]];
+                
+                [menu addItem:item];
+            }
+        });
+    }];
 }
 
 -(void) menuWillOpen:(NSMenu *)menu {

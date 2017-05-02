@@ -19,10 +19,14 @@
 - (void)stopExecutable;
 
 
-- (bool)ping;
-- (id)getUptime;
-- (id)getMyID;
-- (id)getFolders;
+//- (bool)ping;
+- (void)ping:(void (^)(BOOL flag))completionBlock;
+//- (id)getUptime;
+- (void)getUptime:(void (^)(long uptime))completionBlock;
+//- (id)getMyID;
+- (void) getMyID:(void (^)(id myID))completionBlock;
+//- (id)getFolders;
+- (void)getFolders:(void (^)(id folders))completionBlock;
 
 /**
  * Load configuration from XML file

@@ -40,13 +40,15 @@
     [st setURI:[self.Syncthing_URI stringValue]];
     [st setApiKey:[self.Syncthing_ApiKey stringValue]];
     
-    if ([st ping]) {
-        [_buttonSave setEnabled:YES];
-        [_buttonTest setImage:[NSImage imageNamed:NSImageNameStatusAvailable]];
-    } else {
-        [_buttonSave setEnabled:NO];
-        [_buttonTest setImage:[NSImage imageNamed:NSImageNameStatusUnavailable]];
-    }
+    [st ping:^(BOOL flag) {
+        if (flag) {
+            [_buttonSave setEnabled:YES];
+            [_buttonTest setImage:[NSImage imageNamed:NSImageNameStatusAvailable]];
+        } else {
+            [_buttonSave setEnabled:NO];
+            [_buttonTest setImage:[NSImage imageNamed:NSImageNameStatusUnavailable]];
+        }
+    }];
 }
 
 - (void) updateStartAtLogin:(NSUserDefaults *)defaults {
