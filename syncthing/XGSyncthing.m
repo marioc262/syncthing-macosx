@@ -1,14 +1,27 @@
 #import "XGSyncthing.h"
 
 @interface XGSyncthing()<NSURLSessionDelegate>
-
 @property NSTask *StTask;
 @property (nonatomic, strong) NSXMLParser *configParser;
 @property (nonatomic, strong) NSMutableArray<NSString *> *parsing;
 @property (nonatomic, strong) NSURLSession* syncthingSession;
+
 @end
 
-@implementation XGSyncthing {}
+@implementation XGSyncthing {
+}
+
+#ifdef GROUP_SUITE_NAME
+static NSString*const defaultsSuiteName = @GROUP_SUITE_NAME;
+#else 
+#error App Sanboxing requires thes Team ID to be prefix to the Groupd Suite Name
+// Ensure you have a Build Settings OTHER_CFLAGS defines like:
+//          OTHER_CFLAGS = -DGROUP_SUITE_NAME=\"$(TeamIdentifierPrefix)com.github.xor-gate.syncthing-group\"
+static NSString*const defaultsSuiteName = @"Missing Compiler define GROUP_SUITE_NAME";
+#endif
+static NSString*const defaultsApiKey  = @"api_key";
+static NSString*const defaultsUriKey  = @"uri";
+
 
 @synthesize Executable = _Executable;
 @synthesize URI = _URI;
@@ -25,9 +38,11 @@
     return self;
 }
 
+-(void)dealloc {
+    [self closeSession];
+}
 
 #pragma mark - API setup
-
 
 - (void) URLSession:(NSURLSession *)session
 didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
@@ -41,7 +56,12 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     
 }
 
-#pragma mark - API 
+- (void) closeSession {
+    [self.syncthingSession invalidateAndCancel];
+    self.syncthingSession = nil;
+}
+
+#pragma mark - API
 
 - (bool) runExecutable
 {
@@ -176,9 +196,11 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     _configParser = [[NSXMLParser alloc] initWithContentsOfURL:configUrl];
     [_configParser setDelegate:self];
     [_configParser parse];
+    
+    [self saveConfig];
 }
 
--(void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary<NSString *,NSString *> *)attributeDict {
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary<NSString *,NSString *> *)attributeDict {
     [_parsing addObject:elementName];
     NSString *keyPath = [_parsing componentsJoinedByString:@"."];
     
@@ -191,11 +213,11 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     }
 }
 
--(void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
     [_parsing removeLastObject];
 }
 
--(void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string {
+- (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string {
     NSString *keyPath = [_parsing componentsJoinedByString:@"."];
     
     if ([keyPath isEqualToString:@"configuration.gui.apikey"]) {
@@ -203,6 +225,19 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     } else if  ([keyPath isEqualToString:@"configuration.gui.address"]) {
         _URI = [_URI stringByAppendingString:string];
     }
+}
+
+- (void) saveConfig {
+    NSUserDefaults* defaults = [[NSUserDefaults alloc] initWithSuiteName:defaultsSuiteName];
+    [defaults setObject:_apiKey forKey:defaultsApiKey];
+    [defaults setObject:_URI forKey:defaultsUriKey];
+    [defaults synchronize];
+}
+
+- (void) loadConfig {
+    NSUserDefaults* defaults = [[NSUserDefaults alloc] initWithSuiteName:defaultsSuiteName];
+    _apiKey = [defaults objectForKey:defaultsApiKey];
+    _URI = [defaults objectForKey:defaultsUriKey];
 }
 
 @end

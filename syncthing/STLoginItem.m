@@ -46,7 +46,9 @@
         for (id item in (__bridge NSArray *)loginItemsArray) {
             LSSharedFileListItemRef itemRef = (__bridge LSSharedFileListItemRef)item;
             //Resolve the item with URL
-			if (LSSharedFileListItemResolve(itemRef, 0, (CFURLRef*) &url, NULL) == noErr) {
+//            LSSharedFileListItemCopyResolvedURL(<#LSSharedFileListItemRef inItem#>, <#LSSharedFileListResolutionFlags inFlags#>, <#CFErrorRef *outError#>)
+
+            if (LSSharedFileListItemResolve(itemRef, 0, (CFURLRef*) &url, NULL) == noErr) {
 				NSString * urlPath = [(__bridge NSURL*)url path];
 				if ([urlPath compare:appPath] == NSOrderedSame){
 					ret = YES;

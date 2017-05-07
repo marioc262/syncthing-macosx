@@ -32,5 +32,7 @@
  * Load configuration from XML file
  */
 - (void)loadConfigurationFromXML;
+- (void) loadConfig;
 
+- (void) closeSession;
 @end
