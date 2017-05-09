@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A82FB21F1EBF35C700746A29 /* syncthing.icns in Resources */ = {isa = PBXBuildFile; fileRef = C47F6C391D0DE68D00F36CF6 /* syncthing.icns */; };
-		A8BAC2E41EB944160037EC62 /* syncthing-ext.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A8BAC2DA1EB944160037EC62 /* syncthing-ext.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A8BAC2E41EB944160037EC62 /* Syncthing.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A8BAC2DA1EB944160037EC62 /* Syncthing.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A8BAC2E81EB946F70037EC62 /* XGSyncthing.m in Sources */ = {isa = PBXBuildFile; fileRef = C4FFB0641D0D7E4C0015D14A /* XGSyncthing.m */; };
 		A8C0D5421EBA98A000C1411C /* syncthing-default.png in Resources */ = {isa = PBXBuildFile; fileRef = A8C0D5411EBA98A000C1411C /* syncthing-default.png */; };
 		A8C171F01EB94F3A008BAF3F /* FinderSync.m in Sources */ = {isa = PBXBuildFile; fileRef = A834286E1EB926190052D407 /* FinderSync.m */; };
@@ -59,7 +59,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				A8BAC2E41EB944160037EC62 /* syncthing-ext.appex in Embed App Extensions */,
+				A8BAC2E41EB944160037EC62 /* Syncthing.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -91,7 +91,7 @@
 		A834286D1EB926190052D407 /* FinderSync.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FinderSync.h; sourceTree = "<group>"; };
 		A834286E1EB926190052D407 /* FinderSync.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FinderSync.m; sourceTree = "<group>"; };
 		A83428701EB926190052D407 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A8BAC2DA1EB944160037EC62 /* syncthing-ext.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "syncthing-ext.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A8BAC2DA1EB944160037EC62 /* Syncthing.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Syncthing.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8C0D5411EBA98A000C1411C /* syncthing-default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "syncthing-default.png"; sourceTree = "<group>"; };
 		A8C171F11EB95661008BAF3F /* Syncthing.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Syncthing.entitlements; path = syncthing/Syncthing.entitlements; sourceTree = "<group>"; };
 		C41E02A11D57D233006DD238 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = 3thparty/frameworks/Sparkle.framework; sourceTree = SOURCE_ROOT; };
@@ -293,7 +293,7 @@
 			children = (
 				C4A415601D0D579D00DC6018 /* Syncthing.app */,
 				C4576BDB1D11E3BB0031BCFD /* xgsyncthing */,
-				A8BAC2DA1EB944160037EC62 /* syncthing-ext.appex */,
+				A8BAC2DA1EB944160037EC62 /* Syncthing.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -365,9 +365,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A8BAC2D91EB944160037EC62 /* syncthing-ext */ = {
+		A8BAC2D91EB944160037EC62 /* Syncthing */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A8BAC2E51EB944160037EC62 /* Build configuration list for PBXNativeTarget "syncthing-ext" */;
+			buildConfigurationList = A8BAC2E51EB944160037EC62 /* Build configuration list for PBXNativeTarget "Syncthing" */;
 			buildPhases = (
 				A8BAC2D61EB944160037EC62 /* Sources */,
 				A8BAC2D71EB944160037EC62 /* Frameworks */,
@@ -377,9 +377,9 @@
 			);
 			dependencies = (
 			);
-			name = "syncthing-ext";
+			name = Syncthing;
 			productName = "syncthing-ext";
-			productReference = A8BAC2DA1EB944160037EC62 /* syncthing-ext.appex */;
+			productReference = A8BAC2DA1EB944160037EC62 /* Syncthing.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		C4576BDA1D11E3BB0031BCFD /* xgsyncthing */ = {
@@ -469,7 +469,7 @@
 			targets = (
 				C4A4155F1D0D579D00DC6018 /* syncthing */,
 				C4576BDA1D11E3BB0031BCFD /* xgsyncthing */,
-				A8BAC2D91EB944160037EC62 /* syncthing-ext */,
+				A8BAC2D91EB944160037EC62 /* Syncthing */,
 			);
 		};
 /* End PBXProject section */
@@ -564,7 +564,7 @@
 /* Begin PBXTargetDependency section */
 		A8BAC2E31EB944160037EC62 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A8BAC2D91EB944160037EC62 /* syncthing-ext */;
+			target = A8BAC2D91EB944160037EC62 /* Syncthing */;
 			targetProxy = A8BAC2E21EB944160037EC62 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -789,7 +789,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A8BAC2E51EB944160037EC62 /* Build configuration list for PBXNativeTarget "syncthing-ext" */ = {
+		A8BAC2E51EB944160037EC62 /* Build configuration list for PBXNativeTarget "Syncthing" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A8BAC2E61EB944160037EC62 /* Debug */,
