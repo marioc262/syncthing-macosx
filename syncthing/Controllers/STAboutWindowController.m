@@ -16,23 +16,16 @@
 
 @implementation STAboutWindowController
 
-- (id)init {
-	return [super initWithWindowNibName:@"STAboutWindow"];
+- (id) init {
+	return [super initWithWindowNibName:NSStringFromClass(self.class)];
 }
 
-- (id)initWithWindow:(NSWindow *)window
-{
-	self = [super initWithWindow:window];
-	if (!self)
-		return nil;
-	
-	return self;
+- (void) windowDidLoad {
+    [super windowDidLoad];
+    [NSApp activateIgnoringOtherApps:YES];
 }
 
-// Converts an otherwise plain NSTextField label into a hyperlink
--(void)updateControl:(NSTextField*)control withHyperlink:(NSString*)strURL
-{
-	// both are needed, otherwise hyperlink won't accept mousedown
+-(void) updateControl:(NSTextField*)control withHyperlink:(NSString*)strURL {
 	[control setAllowsEditingTextAttributes: YES];
 	[control setSelectable: YES];
 	
@@ -55,7 +48,7 @@
 	NSImage* appIcon = [[NSWorkspace sharedWorkspace] iconForFile:appPath];
 	
 	[appIcon setSize:NSMakeSize(64, 64)];
-	[self.appImageView setImage:appIcon];
+	[_appImageView setImage:appIcon];
 }
 
 - (void) awakeFromNib {
@@ -63,15 +56,14 @@
 
 	[self setIcon];
 
-	self.appNameLabel.stringValue = [infoDictionary objectForKey:@"STBundleName"];
+	_appNameLabel.stringValue = [infoDictionary objectForKey:@"STBundleName"];
 	
-	self.appVersionLabel.stringValue = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
+	_appVersionLabel.stringValue = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
 	
-	[self updateControl:self.appHomepageURL withHyperlink:[infoDictionary objectForKey:@"STProjectHomepageURL"]];
-	
+	[self updateControl:_appHomepageURL withHyperlink:[infoDictionary objectForKey:@"STProjectHomepageURL"]];
 }
 
-- (IBAction)clickedCheckForUpdates:(id)sender {
+- (IBAction) clickedCheckForUpdates:(id)sender {
 	SUUpdater *updater = [SUUpdater updaterForBundle:[NSBundle mainBundle]];
 	[updater checkForUpdates:nil];
 	[updater installUpdatesIfAvailable];

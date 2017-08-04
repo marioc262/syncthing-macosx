@@ -3,7 +3,7 @@
  */
 #import <Foundation/Foundation.h>
 
-@interface XGSyncthing : NSObject<NSURLSessionDelegate> {}
+@interface XGSyncthing : NSObject<NSXMLParserDelegate>
 
 @property (nonatomic, copy) NSString *Executable;
 @property (nonatomic, copy) NSString *URI;
@@ -19,8 +19,14 @@
 - (void)stopExecutable;
 
 
-- (void)ping:(void (^)(BOOL flag))completionBlock;
-- (void)getUptime:(void (^)(long uptime))completionBlock;
-- (void)getFolders:(void (^)(id folders))completionBlock;
+- (bool)ping;
+- (id)getUptime;
+- (id)getMyID;
+- (id)getFolders;
+
+/**
+ * Load configuration from XML file
+ */
+- (BOOL)loadConfigurationFromXML;
 
 @end

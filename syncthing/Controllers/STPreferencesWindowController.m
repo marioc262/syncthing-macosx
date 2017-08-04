@@ -7,150 +7,181 @@
 //
 
 #import "STPreferencesWindowController.h"
-#import "STLoginItem.h"
-#import "XGSyncthing.h"
-#import "STApplication.h"
+#import "STPreferencesGeneralViewController.h"
+#import "STPreferencesFoldersViewController.h"
+#import "STPreferencesInfoViewController.h"
+#import "STPreferencesDevicesViewController.h"
+#import "STPreferencesAdvancedViewController.h"
 
 @interface STPreferencesWindowController ()
-
-@property (nonatomic, strong) NSXMLParser* configParser;
-@property (nonatomic, strong) NSMutableArray<NSString*>* parsing;
 
 @end
 
 @implementation STPreferencesWindowController
 
-- (id)init {
-    return [super initWithWindowNibName:@"STPreferencesWindow"];
-}
-
-- (id)initWithWindow:(NSWindow *)window
+enum
 {
-    self = [super initWithWindow:window];
-    if (self) {
-        // Initialization code here.
-        self.parsing = [[NSMutableArray alloc] init];
-    }
-    return self;
+    kGeneralView = 0,
+    kFoldersView,
+    kDevicesView,
+    kInfoView,
+    kAdvancedView
+};
+
+- (id) init {
+    return [super initWithWindowNibName:NSStringFromClass(self.class)];
 }
 
-- (void)windowDidLoad {
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+- (void) awakeFromNib {
+    [self setViewFromId:kGeneralView];
+}
+
+- (void) windowDidLoad {
     [super windowDidLoad];
-        
-    [self.Syncthing_URI    setStringValue:[defaults objectForKey:@"URI"]];
-    [self.Syncthing_ApiKey setStringValue:[defaults objectForKey:@"ApiKey"]];
-	[self.StartAtLogin     setStringValue:[defaults objectForKey:@"StartAtLogin"]];
-    [self.UseSynthing_inotify     setStringValue:[defaults objectForKey:@"UseInotify"]];
+    [NSApp activateIgnoringOtherApps:YES];
 }
 
-- (void)updateStartAtLogin:(NSUserDefaults *)defaults {
-	STLoginItem *li = [STLoginItem alloc];
-
-	if ([defaults integerForKey:@"StartAtLogin"]) {
-		if (![li wasAppAddedAsLoginItem])
-			[li addAppAsLoginItem];
-	} else {
- 		[li deleteAppFromLoginItem];
-	}
-}
-
-- (IBAction)clickedDone:(id)sender {
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+- (void) setViewFromId:(NSInteger) tag {
+    if ([_currentViewController view] != nil)
+        [[_currentViewController view] removeFromSuperview];
     
-    [defaults setObject:[self.Syncthing_URI stringValue] forKey:@"URI"];
-    [defaults setObject:[self.Syncthing_ApiKey stringValue] forKey:@"ApiKey"];
-	[defaults setObject:[self.StartAtLogin stringValue] forKey:@"StartAtLogin"];
-    [defaults setObject:[self.UseSynthing_inotify stringValue] forKey:@"UseInotify"];
-	
-	[self updateStartAtLogin:defaults];
-	
-    [self close];
-}
-
-- (IBAction)clickedTest:(id)sender {
-    
-    XGSyncthing *st = [[XGSyncthing alloc] init];
-    
-	[st setURI:[self.Syncthing_URI stringValue]];
-	[st setApiKey:[self.Syncthing_ApiKey stringValue]];
-
-	[st ping:^(BOOL flag) {
-        // Since we deal with UI need to be brough back to main thread
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            NSAlert *alert = [[NSAlert alloc] init];
-            [alert addButtonWithTitle:@"OK"];
-
-            [alert setMessageText:@"Syncthing test ping"];
-            if (flag) {
-                [alert setAlertStyle:NSInformationalAlertStyle];
-                [alert setInformativeText:@"Ping successfull!"];
-            } else {
-                [alert setAlertStyle:NSWarningAlertStyle];
-                [alert setInformativeText:@"Ping error, URI or API key incorrect?"];
-            }
-            [alert runModal];
-        });
-    }];
-
-}
-- (IBAction)autoPopulate:(id)sender {
-    [self.Syncthing_URI    setStringValue:@""];
-    [self.Syncthing_ApiKey setStringValue:@""];
-
-    NSError* error;
-    NSURL *supURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory
-                                                           inDomain:NSUserDomainMask
-                                                  appropriateForURL:nil
-                                                             create:NO
-                                                              error:&error];
-    NSURL* configUrl = [supURL URLByAppendingPathComponent:@"/Syncthing/config.xml"];
-    _configParser = [[ NSXMLParser alloc] initWithContentsOfURL:configUrl];
-    _configParser.delegate = self;
-    [_configParser parse];
-    
-}
-- (IBAction)useInotifyChanged:(id)sender {
-    [self.application useInotify:([self.UseSynthing_inotify intValue] == 1)];
-}
-
-- (IBAction)viewInotifyLog:(id)sender {
-    [self.application showInotifyLog];
-}
-
-#pragma mark - NSXMLParserDelegate
-
--(void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary<NSString *,NSString *> *)attributeDict {
-    [self.parsing addObject:elementName];
-    NSString *keyPath = [self.parsing componentsJoinedByString:@"."];
-    if ([keyPath isEqualToString:@"configuration.gui"]) {
-        if ([[[attributeDict objectForKey:@"tls"] lowercaseString] isEqualToString:@"true"]) {
-            [self.Syncthing_URI setStringValue:@"https://"];
-        } else {
-            [self.Syncthing_URI setStringValue: @"http://"];
-        }
+    switch (tag) {
+        case kGeneralView:
+            if (self.generalView == nil)
+                _generalView = [[STPreferencesGeneralViewController alloc] init];
+            _currentViewController = self.generalView;
+            break;
+        case kFoldersView:
+            if (self.foldersView == nil)
+                _foldersView = [[STPreferencesFoldersViewController alloc] init];
+            _currentViewController = self.foldersView;
+            break;
+        case kDevicesView:
+            if (self.devicesView == nil)
+                _devicesView = [[STPreferencesDevicesViewController alloc] init];
+            _currentViewController = self.devicesView;
+            break;
+        case kInfoView:
+            if (self.infoView == nil)
+                _infoView = [[STPreferencesInfoViewController alloc] init];
+            _currentViewController = self.infoView;
+            break;
+        case kAdvancedView:
+            if (self.advancedView == nil)
+                _advancedView = [[STPreferencesAdvancedViewController alloc] init];
+            _currentViewController = self.advancedView;
+        default:
+            break;
     }
-}
-
--(void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
-    [self.parsing removeLastObject];
-}
-
--(void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string {
-    //TODO: Check for SSL and add https
-    NSString *keyPath = [self.parsing componentsJoinedByString:@"."];
     
-    if ([keyPath isEqualToString:@"configuration.gui.apikey"]) {
-        NSString *key = [self.Syncthing_ApiKey.stringValue stringByAppendingString:string];
-        [self.Syncthing_ApiKey setStringValue:key];
-    } else if  ([keyPath isEqualToString:@"configuration.gui.address"]) {
-        NSString *uri = [self.Syncthing_URI.stringValue stringByAppendingString:string];
-        [self.Syncthing_URI    setStringValue:uri];
-    } else {
-        
+    [[self window] setContentView:[_currentViewController view]];
+    
+    // set the view controller's represented object to the number of subviews in that controller
+    // (our NSTextField's value binding will reflect this value)
+    [self.currentViewController setRepresentedObject:[NSNumber numberWithUnsignedInteger:[[_currentViewController.view subviews] count]]];
+
+    // this will trigger the NSTextField's value binding to change
+    [self didChangeValueForKey:@"viewController"];
+}
+
+- (IBAction) toolbarButtonClicked:(id)sender {
+    NSToolbarItem *button = sender;
+    [self setViewFromId:[button tag]];
+}
+
+/*
+ TODO: some day I will know how to dynamic resize the views without
+  views window height get broken
+ 
+    //[[self window] setFrame:[currentView bounds] display:YES animate:YES];
+ 
+ // embed the current view to our host view
+ //[currentView addSubview:_currentViewController.view];
+ 
+ //[self resizeWindowWithContentSize:_currentViewController.view.frame.size animated:YES];
+ //[self.window setContentSize:_currentViewController.view.frame.size];
+ //[self setContentView:[_currentViewController view]];
+ 
+ // make sure we automatically resize the controller's view to the current window size
+ 
+ //[self.window setContentSize:_currentViewController.view.frame.size];
+
+- (CGFloat)toolbarHeight {
+    NSToolbar *toolbar = [self.window toolbar];
+    CGFloat toolbarHeight = 0.0;
+    NSRect windowFrame;
+    
+    if (toolbar && [toolbar isVisible]) {
+        windowFrame = [self.window contentRectForFrameRect:self.window.frame
+                                            ];
+        toolbarHeight = NSHeight(windowFrame) -
+        NSHeight([self.window.contentView frame]);
     }
+    return toolbarHeight;
+}
+
+- (void)resizeToSize:(NSSize)newSize {
+    CGFloat newHeight = newSize.height + [self toolbarHeight];
+    CGFloat newWidth = newSize.width;
+    
+    NSRect aFrame = [self.window contentRectForFrameRect:self.window.frame
+                                                ];
+    
+    aFrame.origin.y += aFrame.size.height;
+    aFrame.origin.y -= newHeight;
+    aFrame.size.height = newHeight;
+    aFrame.size.width = newWidth;
+    
+    aFrame = [self.window frameRectForContentRect:aFrame
+                                         ];
+    [self.window setFrame:aFrame display:YES animate:YES];
+}
+
+- (void) setContentView:(NSView *)view {
+    //[self resizeToSize:view.frame.size];
+    //[self.window setFrame:view.frame.size display:YES animate:YES];
+    [self resizeWindowWithContentSize:view.frame.size animated:YES];
+    [self.window setContentView:view];
+}
+ 
+- (void) resizeWindowWithContentSize:(NSSize)contentSize animated:(BOOL)animated {
+    CGFloat titleBarHeight = self.window.frame.size.height - ((NSView*)self.window.contentView).frame.size.height;
+    CGSize windowSize = windowSize = CGSizeMake(contentSize.width, contentSize.height + titleBarHeight);
+    
+    // Optional: keep it centered
+    float originX = self.window.frame.origin.x + (self.window.frame.size.width - windowSize.width) / 2;
+    float originY = self.window.frame.origin.y + (self.window.frame.size.height - windowSize.height) / 2;
+    NSRect windowFrame = CGRectMake(originX, originY, windowSize.width, windowSize.height);
+    
+    [self.window setFrame:windowFrame display:YES animate:animated];
+}
+
+- (void)resizeWindowForContentSize:(NSSize) size {
+    NSWindow *window = [self window];
+    
+    NSRect windowFrame = [window contentRectForFrameRect:[window frame]];
+    NSRect newWindowFrame = [window frameRectForContentRect:
+                             NSMakeRect( NSMinX( windowFrame ), NSMaxY( windowFrame ) - size.height, size.width, size.height )];
+    [window setFrame:newWindowFrame display:YES animate:[window isVisible]];
 }
 
 
+- (void) setContentView:(NSView *)view {
+    
+    //NSRect wndFrame = [self.window frameRectForContentRect:[view bounds]];
+    
+    //NSLog(@"wndFrame: %@", NSStringFromRect(wndFrame));
+    //wndFrame.origin.x = self.window.frame.origin.x + (self.window.frame.size.width - view.frame.size.width) / 2;
+    //wndFrame.origin.y = self.window.frame.origin.y + (self.window.frame.size.height - view.frame.size.height) / 2;
+    
+    //[view setFrameOrigin:window.frame.origin];
+    [self resizeWindowWithContentSize:view.frame.size animated:YES];
+    //[self.window setFrame:wndFrame display:YES animate:YES];
+    [[self window] setContentView:view];
+
+    //[[self window] setFrame:newWindowFrame display:YES animate:YES];
+    //[[self window] setContentView:view];
+}
+*/
 
 @end

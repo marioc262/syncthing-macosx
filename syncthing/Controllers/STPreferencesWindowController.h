@@ -8,14 +8,22 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class STAppDelegate;
+@class STPreferencesGeneralViewController;
+@class STPreferencesFoldersViewController;
+@class STPreferencesInfoViewController;
+@class STPreferencesDevicesViewController;
+@class STPreferencesAdvancedViewController;
 
-@interface STPreferencesWindowController : NSWindowController<NSXMLParserDelegate>
+@interface STPreferencesWindowController : NSWindowController
 
-@property (weak) IBOutlet NSTextField *Syncthing_URI;
-@property (weak) IBOutlet NSTextField *Syncthing_ApiKey;
-@property (weak) IBOutlet NSButton *StartAtLogin;
-@property (weak) IBOutlet NSButton *UseSynthing_inotify;
-@property (weak) STAppDelegate *application;
+@property (nonatomic, assign) NSViewController *currentViewController;
+
+@property (nonatomic, strong) STPreferencesGeneralViewController *generalView;
+@property (nonatomic, strong) STPreferencesFoldersViewController *foldersView;
+@property (nonatomic, strong) STPreferencesInfoViewController *infoView;
+@property (nonatomic, strong) STPreferencesDevicesViewController *devicesView;
+@property (nonatomic, strong) STPreferencesAdvancedViewController *advancedView;
+
+- (IBAction) toolbarButtonClicked:(id)sender;
 
 @end
