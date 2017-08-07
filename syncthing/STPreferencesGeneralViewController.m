@@ -18,15 +18,8 @@
 
 - (void) viewDidLoad {
     [super viewDidLoad];
-
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    
-    [_Syncthing_URI    setStringValue:[defaults objectForKey:@"URI"]];
-    [_Syncthing_ApiKey setStringValue:[defaults objectForKey:@"ApiKey"]];
-    [_StartAtLogin     setStringValue:[defaults objectForKey:@"StartAtLogin"]];
     
     [self updateTestButton];
-    [_buttonSave setEnabled:NO];
 }
 
 - (id) init {
@@ -40,37 +33,26 @@
     [st setURI:[self.Syncthing_URI stringValue]];
     [st setApiKey:[self.Syncthing_ApiKey stringValue]];
     
-    [st ping:^(BOOL flag) {
-        if (flag) {
-            [_buttonSave setEnabled:YES];
-            [_buttonTest setImage:[NSImage imageNamed:NSImageNameStatusAvailable]];
-        } else {
-            [_buttonSave setEnabled:NO];
-            [_buttonTest setImage:[NSImage imageNamed:NSImageNameStatusUnavailable]];
-        }
-    }];
-}
-
-- (void) updateStartAtLogin:(NSUserDefaults *)defaults {
-    STLoginItem *li = [STLoginItem alloc];
-    
-    if ([defaults integerForKey:@"StartAtLogin"]) {
-        if (![li wasAppAddedAsLoginItem])
-            [li addAppAsLoginItem];
+    if ([st ping]) {
+        [_buttonTest setImage:[NSImage imageNamed:NSImageNameStatusAvailable]];
     } else {
-        [li deleteAppFromLoginItem];
+        [_buttonTest setImage:[NSImage imageNamed:NSImageNameStatusUnavailable]];
     }
 }
 
-- (IBAction) clickedSave:(id)sender {
+- (IBAction)clickedStartAtLogin:(id)sender {
+    [self updateStartAtLogin];
+}
+
+- (void) updateStartAtLogin {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     
-    [defaults setObject:[_Syncthing_URI stringValue] forKey:@"URI"];
-    [defaults setObject:[_Syncthing_ApiKey stringValue] forKey:@"ApiKey"];
-    [defaults setObject:[_StartAtLogin stringValue] forKey:@"StartAtLogin"];
-    
-    [self updateStartAtLogin:defaults];
-    [_buttonSave setEnabled:NO];
+    if ([defaults boolForKey:@"StartAtLogin"]) {
+        if (![STLoginItem wasAppAddedAsLoginItem])
+            [STLoginItem addAppAsLoginItem];
+    } else {
+        [STLoginItem deleteAppFromLoginItem];
+    }
 }
 
 - (IBAction) clickedTest:(id)sender {

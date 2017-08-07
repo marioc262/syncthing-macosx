@@ -2,7 +2,7 @@
 //  FinderSync.h
 //  syncthing-ext
 //
-//  Created by Mario Couture on 2017-05-02.
+//  Created by Mario Couture on 2017-08-03.
 //  Copyright © 2017 Jerry Jacobs. All rights reserved.
 //
 

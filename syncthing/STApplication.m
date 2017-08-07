@@ -1,10 +1,11 @@
 #import "STApplication.h"
+#import "STLoginItem.h"
 
 @interface STAppDelegate ()
 
 @property (nonatomic, strong, readwrite) NSStatusItem *statusItem;
-@property (nonatomic, strong, readwrite) NSTimer *updateTimer;
 @property (nonatomic, strong, readwrite) XGSyncthing *syncthing;
+@property (nonatomic, strong, readwrite) STStatusMonitor *statusMonitor;
 @property (strong) STPreferencesWindowController *preferencesWindow;
 @property (strong) STAboutWindowController *aboutWindow;
 
@@ -16,10 +17,12 @@
     _syncthing = [[XGSyncthing alloc] init];
     
     [self applicationLoadConfiguration];
-    [_syncthing loadConfigurationFromXML];
     [_syncthing runExecutable];
     
-    _updateTimer = [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(updateStatusFromTimer) userInfo:nil repeats:YES];
+    _statusMonitor = [[STStatusMonitor alloc] init];
+    _statusMonitor.syncthing = _syncthing;
+    _statusMonitor.delegate = self;
+    [_statusMonitor startMonitoring];
 }
 
 - (void) clickedFolder:(id)sender {
@@ -40,6 +43,8 @@
 
 // TODO: move to STConfiguration class
 - (void)applicationLoadConfiguration {
+    static int configLoadAttempt = 1;
+    
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
     NSString *cfgExecutable = [defaults stringForKey:@"Executable"];
@@ -51,25 +56,36 @@
         [_syncthing setExecutable:cfgExecutable];
     }
 
-    NSString *cfgURI = [defaults stringForKey:@"URI"];
-    if (!cfgURI) {
-        [_syncthing setURI:@"http://localhost:8384"];
-        [defaults setObject:[_syncthing URI] forKey:@"URI"];
-    } else {
-        [_syncthing setURI:cfgURI];
+    _syncthing.URI = [defaults stringForKey:@"URI"];
+    _syncthing.ApiKey = [defaults stringForKey:@"ApiKey"];
+    
+    // If no values are set, read from XML and store in defaults
+    if (!_syncthing.URI.length && !_syncthing.ApiKey.length) {
+        BOOL success = [_syncthing loadConfigurationFromXML];
+        
+        // If XML doesn't exist or is invalid, retry after delay
+        if (!success && configLoadAttempt <= 3) {
+            configLoadAttempt++;
+            [self performSelector:@selector(applicationLoadConfiguration) withObject:self afterDelay:5.0];
+            return;
+        }
+        
+        [defaults setObject:_syncthing.URI forKey:@"URI"];
+        [defaults setObject:_syncthing.ApiKey forKey:@"ApiKey"];
+    }
+    
+    if (!_syncthing.URI) {
+        _syncthing.URI = @"http://localhost:8384";
+        [defaults setObject:_syncthing.URI forKey:@"URI"];
     }
 
-    NSString *cfgApiKey = [defaults stringForKey:@"ApiKey"];
-    if (!cfgApiKey) {
-        [_syncthing setApiKey:@""];
-        [defaults setObject:[_syncthing ApiKey] forKey:@"ApiKey"];
-    } else {
-        [_syncthing setApiKey:cfgApiKey];
+    if (!_syncthing.ApiKey) {
+        _syncthing.ApiKey = @"";
+        [defaults setObject:_syncthing.ApiKey forKey:@"ApiKey"];
     }
 
-    NSString *cfgStartAtLogin = [defaults stringForKey:@"StartAtLogin"];
-    if (!cfgStartAtLogin) {
-        [defaults setObject:@"false" forKey:@"StartAtLogin"];
+    if (![defaults objectForKey:@"StartAtLogin"]) {
+        [defaults setBool:[STLoginItem wasAppAddedAsLoginItem] forKey:@"StartAtLogin"];
     }
 }
 
@@ -85,16 +101,25 @@
 	[_statusItem.button.image setTemplate:YES];
 }
 
-- (void) updateStatusFromTimer {
-    [_syncthing ping:^(BOOL flag) {
-    if (flag) {
-        [self updateStatusIcon:@"StatusIconDefault"];
-        [_statusItem setToolTip:@"Connected"];
-    } else {
-        [self updateStatusIcon:@"StatusIconNotify"];
-        [_statusItem setToolTip:@"Not connected"];
+- (void) syncMonitorStatusChanged:(SyncthingStatus)status {
+    switch (status) {
+        case SyncthingStatusIdle:
+            [self updateStatusIcon:@"StatusIconDefault"];
+            [_statusItem setToolTip:@"Idle"];
+            break;
+        case SyncthingStatusBusy:
+            [self updateStatusIcon:@"StatusIconSync"];
+            [_statusItem setToolTip:@"Syncing"];
+            break;
+        case SyncthingStatusOffline:
+            [_statusItem setToolTip:@"Not connected"];
+            [self updateStatusIcon:@"StatusIconNotify"];
+            break;
+        case SyncthingStatusError:
+            [_statusItem setToolTip:@"Error"];
+            [self updateStatusIcon:@"StatusIconNotify"];
+            break;
     }
-    }];
 }
 
 - (IBAction) clickedOpen:(id)sender {
@@ -103,26 +128,22 @@
 }
 
 - (void) updateFoldersMenu:(NSMenu *)menu {
-    [self.syncthing getFolders:^(id folders) {
-        //TODO: This need to execute on the main thread.
-            dispatch_sync(dispatch_get_main_queue(), ^{
-            [menu removeAllItems];
-            for (id dir in folders) {
-                NSString *name = [dir objectForKey:@"label"];
-                if ([name length] == 0)
-                    name = [dir objectForKey:@"id"];
-                
-                NSMenuItem *item = [[NSMenuItem alloc] init];
-                
-                [item setTitle:name];
-                [item setRepresentedObject:[dir objectForKey:@"path"]];
-                [item setAction:@selector(clickedFolder:)];
-                [item setToolTip:[dir objectForKey:@"path"]];
-                
-                [menu addItem:item];
-            }
-        });
-    }];
+    [menu removeAllItems];
+    
+    for (id dir in [self.syncthing getFolders]) {
+        NSString *name = [dir objectForKey:@"label"];
+        if ([name length] == 0)
+            name = [dir objectForKey:@"id"];
+        
+        NSMenuItem *item = [[NSMenuItem alloc] init];
+        
+        [item setTitle:name];
+        [item setRepresentedObject:[dir objectForKey:@"path"]];
+        [item setAction:@selector(clickedFolder:)];
+        [item setToolTip:[dir objectForKey:@"path"]];
+        
+        [menu addItem:item];
+    }
 }
 
 -(void) menuWillOpen:(NSMenu *)menu {
@@ -132,9 +153,7 @@
 
 - (IBAction) clickedQuit:(id)sender {
     [_syncthing stopExecutable];
-    
-    [_updateTimer invalidate];
-    _updateTimer = nil;
+    [_statusMonitor stopMonitoring];
     
     [self updateStatusIcon:@"StatusIconNotify"];
     [_statusItem setToolTip:@""];
